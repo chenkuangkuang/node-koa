@@ -1,0 +1,30 @@
+*{
+  list-sytle:none
+}
+
+.books{
+  list-sytle:none
+}
+
+.books li{
+  text-decoration: none;
+  list-style: none;
+  width: 357px;
+  height: 60px;
+  white-space: nowrap;
+  padding: 10px;
+  line-height: 60px;
+  color: #585555;
+  float: left;
+  box-shadow: 1px 1px 5px #a29c9c;
+  margin: 10px;
+  overflow: hidden;
+  background: url(https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3898114357,560437404&fm=26&gp=0.jpg) center center;
+  transition: all .3s;
+}
+
+.books li:hover{
+  box-shadow: 1px 1px 10px #545252;
+  transition: all .3s;
+  cursor: pointer;
+}

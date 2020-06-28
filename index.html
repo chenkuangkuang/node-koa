@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./jquery.js"></script>
+  <title>Document</title>
+</head>
+
+<body>
+
+  <br />
+  <br />
+
+  <input type="text" id='bookName' >
+  <button id='search'>搜索</button>
+  <button id='reset'>重置</button>
+
+  <br />
+
+  <ul class="books">
+    <%for(var i=0;i<arr.length;i++) { %>
+      <li><%=arr[i] %></li>
+  <%}%>
+  </ul>
+
+</body>
+<script>
+  $(function (params) {
+    var lastSearch = window.location.search;
+    var searchTxt = lastSearch.match(/(?<=search=)\w+/);
+    console.log('searchTxt', searchTxt);
+    $("#bookName")[0].value = searchTxt;
+    $("#search").on("click", function (params) {
+      var bookName = $("#bookName")[0].value;
+      console.log('bookName', bookName);
+      window.location.href = window.location.origin + '?search='+bookName;
+    })
+
+    $("#reset").on("click", function (params) {
+      window.location.href = window.location.origin;
+    })
+  })
+</script>
+</html>
