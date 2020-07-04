@@ -12,6 +12,34 @@ const mysql = require('mysql')
 
 app.use(bodyParser());
 
+const searchDataAll = ({current, pageSize}) => {
+    return new Promise((resolve, reject) => {
+        const connection = mysql.createConnection({
+            host: '127.0.0.1',   // 数据库地址
+            user: 'root',    // 数据库用户
+            password: '123456',   // 数据库密码
+            database: 'test',  // 选中数据库
+            multipleStatements: true
+        })
+        const querySql = "select count(*) from tianbao;select * from tianbao limit "+(current-1)*10+","+pageSize;
+        // const querySql = "select count(*) from tianbao";
+        console.log('=txt=', current, pageSize);
+        connection.query(querySql, (error, result) => {
+            console.log('=error, result=', error, result);
+            if (error) {
+                reject(error);
+            } else {
+                resolve({
+                    record: result[1],
+                    total: result[0][0]['count(*)'],
+                    current: current
+                });
+            }
+            connection.end();
+        })
+    })
+}
+
 const searchDataById = (id) => {
     return new Promise((resolve, reject) => {
         const connection = mysql.createConnection({
@@ -27,7 +55,7 @@ const searchDataById = (id) => {
             if (error) {
                 reject(error);
             } else {
-                resolve(result);
+                resolve(result[0]);
             }
             connection.end();
         })
@@ -57,10 +85,24 @@ const addData = (newArr) => {
     })
 }
 
-router.post("/biz-tgj/fillIn", async (ctx) => {
+
+router.get("/biz-tgj/fillIn/page", async (ctx) => {
     const query = ctx.request.query;
     console.log('=query=', query);
-    const re = await addData(query);
+    // const re = await addData(query);
+    const re = await searchDataAll({current:query.current, pageSize:query.pageSize});
+    console.log('=re=', re);
+    ctx.body = {
+        status: true,
+        data:re
+    }
+})
+
+router.post("/biz-tgj/fillIn", async (ctx) => {
+    const query = ctx.request.query;
+    const body = ctx.body;
+    console.log('=query=123', query, ctx.request.body);
+    const re = await addData(ctx.request.body);
     // const re = await searchDataById(1);
     console.log('=re=', re);
     ctx.body = {
