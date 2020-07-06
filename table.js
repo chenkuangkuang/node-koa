@@ -12,7 +12,7 @@ const mysql = require('mysql')
 
 app.use(bodyParser());
 
-const searchDataAll = ({current, pageSize}) => {
+const searchDataAll = ({current, pageSize, type, status, isp}) => {
     return new Promise((resolve, reject) => {
         const connection = mysql.createConnection({
             host: '127.0.0.1',   // 数据库地址
@@ -21,9 +21,11 @@ const searchDataAll = ({current, pageSize}) => {
             database: 'test',  // 选中数据库
             multipleStatements: true
         })
-        const querySql = "select count(*) from tianbao;select * from tianbao limit "+(current-1)*10+","+pageSize;
+        console.log('=txt=', current, pageSize, type, status, isp);
+        // const querySql = "select count(*) from tianbao;select * from tianbao limit "+(current-1)*10+","+pageSize+" where "+(status ? "status="+status : "")+" AND type="+type+" AND isp="+isp;
+        const querySql = "select count(*) from tianbao;select * from tianbao where type="+type + (isp && isp!='' ? " AND isp="+isp :"")+ (status && status!=''? " AND status="+status :"") +" limit "+((current-1)*10)+","+pageSize;
         // const querySql = "select count(*) from tianbao";
-        console.log('=txt=', current, pageSize);
+
         connection.query(querySql, (error, result) => {
             console.log('=error, result=', error, result);
             if (error) {
@@ -85,12 +87,35 @@ const addData = (newArr) => {
     })
 }
 
+const updateData = (newObj) => {
+    let { values } = newObj;
+    let newValues = values;
+    console.log('=newObj=', newObj, typeof newValues);
+    return new Promise((resolve, reject) => {
+        const connection = mysql.createConnection({
+            host: '127.0.0.1',   // 数据库地址
+            user: 'root',    // 数据库用户
+            password: '123456',   // 数据库密码
+            database: 'test'  // 选中数据库
+        })
+        const addSql = "UPDATE tianbao SET years='"+newObj.years+"', type="+newObj.type+", status="+newObj.status+", `values`='"+newValues+"' WHERE id = ?";
+        connection.query(addSql, [newObj.id], (error, result) => {
+            console.log('=error, result=', error, result);
+            if (error) {
+                reject(error);
+            } else {
+                resolve(result);
+            }
+            connection.end();
+        })
+    })
+}
 
 router.get("/biz-tgj/fillIn/page", async (ctx) => {
     const query = ctx.request.query;
     console.log('=query=', query);
     // const re = await addData(query);
-    const re = await searchDataAll({current:query.current, pageSize:query.pageSize});
+    const re = await searchDataAll(query);
     console.log('=re=', re);
     ctx.body = {
         status: true,
@@ -120,6 +145,19 @@ router.get("/biz-tgj/fillIn", async (ctx) => {
     ctx.body = {
         status: true,
         data:re
+    }
+})
+
+router.put("/biz-tgj/fillIn", async (ctx) => {
+    const {query, body} = ctx.request;
+    const data = JSON.stringify(query) == '{}' ? body : query;
+    console.log('=query=123', data);
+    const re = await updateData(data);
+    // const re = await searchDataById(1);
+    console.log('=re=', JSON.stringify(re));
+    ctx.body = {
+        status: !!re.affectedRows,
+        id:data.id
     }
 })
 
