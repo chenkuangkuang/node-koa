@@ -169,6 +169,17 @@ router.get("/login", (ctx) => {
     };
 })
 
+
+router.get("/project/page", (ctx) => {
+    console.log('=ctx=', ctx);
+    ctx.throw(502);
+    ctx.body = {
+        Code: 1,
+        BackData: { user: "123", avatar: "1.png" },
+        status: 200
+    };
+})
+
 app.use(router.routes())
 app.use(router.allowedMethods())
 
